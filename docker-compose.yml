@@ -1,0 +1,107 @@
+version: '3.0'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper  
+    restart: unless-stopped  
+    ports: ["2181:2181"]
+
+  kafka:
+    image: wurstmeister/kafka
+    restart: unless-stopped
+    ports: ["9092:9092"]
+    hostname: kafka
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka   
+      - KAFKA_ADVERTISED_PORT=9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CREATE_TOPICS=test_topic:1:1
+
+  
+  kafka-cli:
+    image: confluentinc/ksqldb-cli:0.18.0
+    container_name: kafka-cli
+    ports: ["8080:8080"]
+    depends_on:
+      - kafka
+    entrypoint: /bin/sh
+    tty: true
+    
+  app:
+    container_name: app
+    build: ./
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: 'host.docker.internal'
+      DB_DATABASE: 'nodedb_prod'
+      # So you don't have to use root, but you can if you like
+      DB_USER: 'user'
+      # You can use whatever password you like
+      DB_PASS: 'root'
+      # Password for root access
+      DB_PORT: '3307'
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'nodedb'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'root'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      # <Port exposed> : <MySQL Port running inside container>
+      - '3306:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+      # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+  db_prod:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'nodedb_prod'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'root'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      # <Port exposed> : <MySQL Port running inside container>
+      - '3307:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3307'
+      # Where our data will be persisted
+    volumes:
+      - my-db_prod:/var/lib/mysql
+  db_test:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'nodedb_test'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'root'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      # <Port exposed> : <MySQL Port running inside container>
+      - '3308:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3308'
+      # Where our data will be persisted
+    volumes:
+      - my-db_test:/var/lib/mysql
+# Names our volume
+volumes:
+  my-db:
+  my-db_prod:
+  my-db_test:

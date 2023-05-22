@@ -1,0 +1,46 @@
+{
+  "definition": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Task API",
+      "version": "0.1.0",
+      "description":
+        "Test API - Tasks Management",
+      "license": {
+        "name": "MIT",
+        "url": "https://spdx.org/licenses/MIT.html"
+      },
+      "contact": {
+        "name": "André Luiz Alexandrini",
+        "url": "https://www.andreluizbsn.com",
+        "email": "andreluizbsn@gmail.com"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "components": {
+      "schemas": {
+        "Employee": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "readOnly": true
+            },
+            "name": {
+              "type": "string",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "apis": ["./src/controllers/*.ts"]
+}
